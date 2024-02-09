@@ -24,8 +24,16 @@ FPS = 120
 #game variables
 dia = 36
 taking_shot = True
+pocket_dia = 66
+force = 0
+powering_up = False
+max_force = 10000
+force_direction = 1
+potted_balls = []
+
 #colors
 BG = (50, 50, 50)
+RED = (255, 0 , 0)
 
 #load images
 cue_image = pygame.image.load("assets/images/cue.png").convert_alpha()
@@ -65,6 +73,16 @@ for col in range(5):
 position = (888, SCREEN_HEIGHT / 2)
 cue_ball = display_ball(dia / 2, position)
 balls.append(cue_ball)
+
+#create pockets on tab;e
+pockets = [
+  (55, 63),
+  (592, 48),
+  (1134, 64),
+  (55, 616),
+  (592, 629),
+  (1134, 616)
+]
 
 #create pool cushions
 cushions = [
@@ -109,6 +127,10 @@ class Cue():
 
 cue = Cue(balls[-1].body.position)
 
+#create power bars to show how hard the ball will be hit
+power_bar = pygame.surface((10, 20))
+power_bar.fill (RED)
+
 # Main game loop
 run = True
 while run:
@@ -125,10 +147,11 @@ while run:
     #draw pool balls
     for i, ball in enumerate(balls):
         screen.blit(ball_images[i], (ball.body.position[0] - ball.radius, ball.body.position[1] - ball.radius))
+
     #check if balls have stopped moving
     taking_shot = True
     for ball in balls:
-        if (ball.bdy.velocity[0]) != 0 or ball.body.velocity[1]:
+        if (ball.bdy.velocity[0]) != 0 or int(ball.body.velocity[1]) != 0:
             taking_shot = False
 
     #cue image
@@ -142,10 +165,29 @@ while run:
         cue.update(cue_angle)
         cue.draw(screen)
 
+    #power_up pool cue
+    if power_up == True:
+        force += 100 * force_direction
+        if force >= max_force or force <= 0:
+            force_direction *= -1
+        #draw power bars
+        for b in range(math.ceil(force / 2000)):
+            screen.blit(power_bar, 
+            (balls[-1].body.position[0] -30 + (b * 15),
+            balls[-1].body.position[1] + (b * 30)))
+    elif powering_up == False and taking_shot == True:
+        x_impulse = math.cos(math.radians(cue_angle))
+        y_impulse = math.sin(math.radians(cue_angle))
+        balls[-1].body.apply_impulse_at_local_point((force * x_impulse, force * y_impulse), (0, 0))
+        force = 0
+        force_direction = 1
+        
     #events handler
     for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            cue_ball.body.apply_impulse_at_local_point((-500, 0), (0, 0))
+        if event.type == pygame.MOUSEBUTTONDOWN and taking_shot == True:
+            powering_up = True
+        if event.type == pygame.MOUSEBUTTONUP and taking_shot == True:
+            powering_up = False  
         if event.type == pygame.QUIT:
             run = False
     
