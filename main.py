@@ -232,7 +232,6 @@ for i, ball in enumerate(balls):
         game_running = False
 
     #check all balls potted
-
     if len(balls) == 1:
         draw_text("GAME COMPLETE!", large_font, WHITE, SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT / 2 - 100)
         game_running = False
