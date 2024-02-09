@@ -30,6 +30,7 @@ force = 0
 cue_ball_potted = False
 powering_up = False
 max_force = 10000
+game_running = True
 force_direction = 1
 potted_balls = []
 lives = 3
@@ -111,9 +112,9 @@ def create_cushion(poly_dims):
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
     body.position = ((0, 0))
     shape = pymunk.Poly(body, poly_dims)
-shape.elasticity = 0.8
+    shape.elasticity = 0.8
     
-space.add(body, shape)
+    space.add(body, shape)
 
 for c in cushions:
     create_cushion(c)
@@ -140,7 +141,7 @@ class Cue():
 cue = Cue(balls[-1].body.position)
 
 #create power bars to show how hard the ball will be hit
-power_bar = pygame.surface((10, 20))
+power_bar = pygame.Surface((10, 20))
 power_bar.fill (RED)
 
 # Main game loop
@@ -165,6 +166,7 @@ for i, ball in enumerate(balls):
         if ball_dist <= pocket_dia / 2:
             #check if potted ball was cue ball
             if i == len(balls) - 1:
+                lives -= 1
                 cue_ball_potted = True
                 ball.body.position = (-100, -100)
                 ball.body.velocity = (0.0, 0.0)
@@ -185,7 +187,7 @@ for i, ball in enumerate(balls):
             taking_shot = False
 
     #cue image
-    if taking_shot == True:
+    if taking_shot == True and game_running = True:
         if cue_ball_potted == True:
             #repo cue ball
             balls[-1].body.position = (888, SCREEN_HEIGHT / 2)
@@ -200,7 +202,7 @@ for i, ball in enumerate(balls):
         cue.draw(screen)
 
     #power_up pool cue
-    if power_up == True:
+    if power_up == True and game_running = True:
         force += 100 * force_direction
         if force >= max_force or force <= 0:
             force_direction *= -1
@@ -218,12 +220,23 @@ for i, ball in enumerate(balls):
 
     #draw bottom panel
     pygame.draw.rect(screen, BG, (0, SCREEN_HEIGHT, SCREEN_WIDTH, BOTTOM_PANEL))
-draw_text("lives: " + str(lives), font, WHITE, SCREEN_WIDTH - 200, SCREEN_HEIGHT +10)
+    draw_text("lives: " + str(lives), font, WHITE, SCREEN_WIDTH - 200, SCREEN_HEIGHT +10)
 
     #draw potted balls at the bottom
     for i, ball in enumerate(potted_balls):
         screen.blit(ball, (10 + (i * 50), SCREEN_HEIGHT + 10))
         
+    #check rem lives
+    if lives <= 0:
+        draw_text("GAME OVER!", large_font, WHITE, SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT / 2 - 100)
+        game_running = False
+
+    #check all balls potted
+
+    if len(balls) == 1:
+        draw_text("GAME COMPLETE!", large_font, WHITE, SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT / 2 - 100)
+        game_running = False
+
     #events handler
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN and taking_shot == True:
