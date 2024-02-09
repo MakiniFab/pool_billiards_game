@@ -23,6 +23,9 @@ FPS = 120
 #colors
 BG = (50, 50, 50)
 
+#load images
+table_image = pygame.image.load("assets/images/table.png").convert_alpha()
+
 #display pool_balls
 def display_ball(radius, position):
     body = pymunk.Body()
@@ -51,6 +54,9 @@ while run:
     #fill background
     screen.fill(BG)
 
+    #draw pool table
+    screen.blit(table_image, (0, 0))
+    
     #events handler
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
