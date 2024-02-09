@@ -1,6 +1,7 @@
 import pygame
 import pymunk
 import pymunk.pygame_util
+import math
 
 pygame.init()
 
@@ -22,7 +23,7 @@ FPS = 120
 
 #game variables
 dia = 36
-
+taking_shot = True
 #colors
 BG = (50, 50, 50)
 
@@ -94,11 +95,17 @@ class Cue():
         self.angle = 0
         self.image = pygame.transform.rotate(self.original_image, self.angle)
         self.rect = self.image.get_rect()
-        self.rect.centre = pos
+        self.rect.center = pos
     
+    def update(self, angle):
+        self.angle = angle
+
     def draw(self, surface):
         self.image = pygame.transform.rotate(self.original_image, self.angle)
-        surface.blit(self.image, self.rect)
+        surface.blit(self.image, 
+        (self.rect.centerx - self.get_width() / 2,
+        self.rect.centery - self.get_height() / 2)
+        )
 
 cue = Cue(balls[-1].body.position)
 
@@ -118,10 +125,23 @@ while run:
     #draw pool balls
     for i, ball in enumerate(balls):
         screen.blit(ball_images[i], (ball.body.position[0] - ball.radius, ball.body.position[1] - ball.radius))
+    #check if balls have stopped moving
+    taking_shot = True
+    for ball in balls:
+        if (ball.bdy.velocity[0]) != 0 or ball.body.velocity[1]:
+            taking_shot = False
 
     #cue image
-    cue.draw(screen)
-    
+    if taking_shot == True:
+        #calculate pool cue angle
+        mouse_position = pygame.mouse.get_pos()
+        cue.rect.center = balls[-1].body.position
+        X_dist = balls[-1].body.position[0] - mouse_position[0]
+        y_dist = -(balls[-1].body.position[1] - mouse_position[1]) #-ve y co ordinates inc down screen
+        cue_angle =math.degrees(math.atan2(y_dist, x_dist))
+        cue.update(cue_angle)
+        cue.draw(screen)
+
     #events handler
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
