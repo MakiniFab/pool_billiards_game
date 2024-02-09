@@ -32,10 +32,16 @@ powering_up = False
 max_force = 10000
 force_direction = 1
 potted_balls = []
+lives = 3
 
 #colors
 BG = (50, 50, 50)
 RED = (255, 0 , 0)
+WHITE = (25, 255, 255)
+
+#fonts
+font = pygame.font.SysFont('Lato', 30)
+large_font = pygame.font.SysFont('Lato', 60)
 
 #load images
 cue_image = pygame.image.load("assets/images/cue.png").convert_alpha()
@@ -45,6 +51,10 @@ for i in range(1, 17):
     ball_image = pygame.image.load(f"assets/images/ball_{i}.png").convert_alpha()
     ball_images.append(ball_image)
 
+#func for output text on screen
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img, (x, y))
 
 #display pool_balls
 def display_ball(radius, position):
@@ -103,7 +113,7 @@ def create_cushion(poly_dims):
     shape = pymunk.Poly(body, poly_dims)
 shape.elasticity = 0.8
     
-    space.add(body, shape)
+space.add(body, shape)
 
 for c in cushions:
     create_cushion(c)
@@ -148,9 +158,9 @@ while run:
 
 #check if ball is potted
 for i, ball in enumerate(balls):
-    for pocket in pockts:
-        ball_x_dist = abs(ball.body.position[0] - pocket{0})
-        ball_y_dist = abs(ball.body.position[1] - pocket{1})
+    for pocket in pockets:
+        ball_x_dist = abs(ball.body.position[0] - pocket[0])
+        ball_y_dist = abs(ball.body.position[1] - pocket[1])
         ball_dist = math.sqrt((ball_x_dist ** 2) + (ball_y_dist ** 2))
         if ball_dist <= pocket_dia / 2:
             #check if potted ball was cue ball
@@ -208,6 +218,7 @@ for i, ball in enumerate(balls):
 
     #draw bottom panel
     pygame.draw.rect(screen, BG, (0, SCREEN_HEIGHT, SCREEN_WIDTH, BOTTOM_PANEL))
+draw_text("lives: " + str(lives), font, WHITE, SCREEN_WIDTH - 200, SCREEN_HEIGHT +10)
 
     #draw potted balls at the bottom
     for i, ball in enumerate(potted_balls):
