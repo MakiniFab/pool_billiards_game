@@ -20,6 +20,9 @@ draw_options = pymunk.pygame_util.DrawOptions(screen)
 clock = pygame.time.Clock()
 FPS = 120
 
+#game variables
+dia = 36
+
 #colors
 BG = (50, 50, 50)
 
@@ -32,6 +35,7 @@ def display_ball(radius, position):
     body.position = position
     shape = pymunk.Circle(body, radius)
     shape.mass = 5
+    shape.elasticity = 0.8
     #use pivot joint to add friction
     pivot = pymunk.PivotJoint(static_body, body, (0, 0), (0, 0))
     pivot.max_bias = 0 #disable joint correction
@@ -40,9 +44,20 @@ def display_ball(radius, position):
     space.add(body, shape, pivot)
     return shape
 
-    new_ball = display_ball(25, (300, 200))
-
-    cue_ball = display_ball(20, (200, 400))
+#setting game balls
+balls = []
+rows = 5
+#potting balls
+for col in range(5):
+    for row in range(rows):
+        pos = (250 + (col * dia), 267 + (row* dia))
+        new_ball = display_ball(dia / 2, pos)
+        balls.append(new_ball)
+    rows -= 1
+#cue ball
+pos = (888, SCREEN_HEIGHT / 2)
+cue_ball = display_ball(dia / 2, pos)
+balls.append(cue_ball)
 
 #create pool cushions
 cushions = [
@@ -59,7 +74,8 @@ def create_cushion(poly_dims):
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
     body.position = ((0, 0))
     shape = pymunk.Poly(body, poly_dims)
-
+shape.elasticity = 0.8
+    
     space.add(body, shape)
 
 for c in cushions:
@@ -77,6 +93,7 @@ while run:
 
     #draw pool table
     screen.blit(table_image, (0, 0))
+
     
     #events handler
     for event in pygame.event.get():
