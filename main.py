@@ -10,11 +10,11 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Mountain Top')
 
 # Main game loop
-running = True
-while running:
+run = True
+while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            run = False
     
     # Update the display
     pygame.display.update()
